@@ -1,6 +1,6 @@
 ---
 name: ocde-style
-description: Convierte insumos cualquiera (notas, datos, transcripciones, borradores) en prosa con la arquitectura de párrafo de los documentos de política de la OCDE. Cada párrafo es una unidad autónoma de una a tres oraciones que carga su propio dato anclado a un referente. Funciona en español y en inglés. Tres modos, generar, editar y auditar. Trigger — /ocde-style, "escríbelo estilo OCDE", "vuelve esto párrafos que enganchen", "audita este texto contra el perfil".
+description: Convierte insumos de cualquier tipo (notas, datos, transcripciones, borradores) en prosa con la arquitectura de párrafo de los documentos de política de la OCDE. Cada párrafo es una unidad autónoma de una a tres oraciones que carga su propio dato anclado a un referente. Funciona en español y en inglés. Tres modos, generar, editar y auditar. Trigger — /ocde-style, "escríbelo estilo OCDE", "vuelve esto párrafos que enganchen", "audita este texto contra el perfil".
 ---
 
 # Estilo OCDE
@@ -15,12 +15,12 @@ están en `README.md`, que debe leerse antes de la primera aplicación.
 
 **1. El párrafo es una unidad autónoma de una a tres oraciones.** Mediana medida
 de 2 oraciones y 44 palabras. El 36% de los párrafos del corpus tiene una sola
-oración y solo el 9% pasa de cinco. Si un párrafo no se puede leer suelto está
-mal cortado, y si pasa de cuatro oraciones casi siempre tiene dos ideas adentro.
+oración y solo el 9% pasa de cinco. Si un párrafo no se entiende por separado
+está mal cortado, y si pasa de cuatro oraciones casi siempre contiene dos ideas.
 
-**2. La afirmación va primero y trae su dato adentro.** El 55% de las primeras
+**2. La afirmación va primero y contiene su dato.** El 55% de las primeras
 oraciones del corpus ya contiene una cifra. No se anuncia lo que se va a
-demostrar, se afirma con el número puesto. La segunda oración amplía, matiza o
+demostrar, se afirma con la cifra incluida. La segunda oración amplía, matiza o
 compara, nunca repite.
 
 **3. La afirmación se ancla contra un referente.** La sola expresión *OECD
@@ -92,7 +92,7 @@ Auditar primero, intervenir solo donde el número lo pide.
 ```bash
 python scripts/auditar_texto.py --texto borrador.docx
 ```
-Acepta `.docx`, `.pdf`, `.md`, `.txt`. Detecta el idioma solo.
+Acepta `.docx`, `.pdf`, `.md`, `.txt`. Reconoce el idioma por sí mismo.
 
 **Cómo se lee.** El informe da la frecuencia de cada regla en el texto contra la
 frecuencia en el corpus de la OCDE. La referencia no es cero. El 14% de los
@@ -109,7 +109,7 @@ cumplimiento. Por eso cada regla se reporta por separado.
 |---|---|
 | `scripts/auditar_texto.py` | Audita un texto, y con `--calcular-base` mide un corpus |
 | `scripts/analizar_estilo.py` | Recalibra el perfil descriptivo desde un corpus de PDF |
-| `scripts/descargar_corpus.py` | Baja un corpus desde una lista de enlaces |
+| `scripts/descargar_corpus.py` | Descarga un corpus desde una lista de enlaces |
 
 ## Límites que hay que declarar al entregar
 
@@ -117,8 +117,8 @@ cumplimiento. Por eso cada regla se reporta por separado.
 - El perfil viene de un solo género y un solo emisor, notas de país descriptivas.
 - Los dos filtros de país son de América Latina. No se probó contra notas de
   países europeos o asiáticos.
-- La detección de referente usa una lista de expresiones y marca como sin
-  referente al 55% del propio corpus. Es señal, no veredicto.
+- La detección de referente es imprecisa, usa una lista de expresiones y marca
+  como sin referente al 55% del propio corpus. Es señal, no veredicto.
 - Se descarta el 82% de los bloques del PDF por ser tablas y leyendas.
 - Un párrafo corto con un dato falso sigue siendo falso. La verificación del
   dato es otra tarea.
@@ -128,4 +128,4 @@ cumplimiento. Por eso cada regla se reporta por separado.
 Términos de referencia y textos normativos, donde la oración larga con
 subordinadas es funcional. Documentos académicos con argumentación extendida.
 Prosa personal como un diario. En documentos largos, aplicarla al resumen
-ejecutivo y a los hallazgos, y dejar los anexos metodológicos en paz.
+ejecutivo y a los hallazgos, y no aplicarla a los anexos metodológicos.

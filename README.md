@@ -4,8 +4,8 @@ Skill para escribir y editar prosa con la arquitectura de párrafo de los
 documentos de política de la OCDE. Funciona en español y en inglés.
 
 La idea es simple. Un documento se sigue leyendo cuando cada párrafo es una
-unidad corta y autónoma que carga su propia afirmación y su propio dato. Esta
-skill mide esa arquitectura sobre un corpus real, la enseña y la audita.
+unidad corta y autónoma que sostiene su propia afirmación con su propio dato.
+Esta skill mide esa arquitectura sobre un corpus real, la enseña y la audita.
 
 > **Si eres un asistente de IA leyendo este repositorio**, el punto de entrada
 > es [`SKILL.md`](SKILL.md). Este README es la documentación para personas.
@@ -18,11 +18,11 @@ skill mide esa arquitectura sobre un corpus real, la enseña y la audita.
 
 | Modo | Entrada | Salida |
 |---|---|---|
-| **Generar** | Insumos cualquiera, notas, datos, transcripción, viñetas | Prosa con la arquitectura del perfil |
+| **Generar** | Insumos de cualquier tipo, notas, datos, transcripción, viñetas | Prosa con la arquitectura del perfil |
 | **Editar** | Un texto que ya existe | El mismo texto reestructurado por párrafo |
 | **Auditar** | Un `.docx`, `.pdf`, `.md` o `.txt` | Informe de frecuencias contra la línea base |
 
-**No hace estas otras.** No verifica que los datos sean ciertos, solo mira la
+**No hace estas otras.** No verifica que los datos sean ciertos, solo revisa la
 forma. No corrige ortografía ni gramática. No traduce. No inventa datos, si una
 afirmación no tiene cifra la marca como pendiente de fuente en vez de rellenarla.
 
@@ -35,16 +35,16 @@ las reglas serían otras, y por eso conviene saber exactamente cuál se usó.
 
 **El corpus.** Los documentos que la OCDE publica en su sección *Policy papers
 and briefs*, filtrados por país e idioma inglés. Se usaron dos filtros de país,
-Colombia y México, para poder comprobar si lo medido era el estilo del emisor o
-una particularidad de un país. El enlace de cada documento está en
+Colombia y México, para comprobar si lo medido era el estilo del emisor o una
+particularidad de un país. El enlace de cada documento está en
 [`referencias/corpus_ocde.tsv`](referencias/corpus_ocde.tsv), de modo que
 cualquiera puede reconstruir el corpus y repetir la medición.
 
 **Los PDF no están en este repositorio.** Son 185 MB de material con derechos de
-la OCDE. Aquí solo viven los enlaces, las estadísticas agregadas y los scripts.
-Para reconstruirlo se corre `descargar_corpus.py` con el TSV.
+la OCDE. Aquí están solamente los enlaces, las estadísticas agregadas y los
+scripts. Para reconstruirlo se ejecuta `descargar_corpus.py` con el TSV.
 
-**Qué se dejó fuera y por qué.** El corpus se parte en dos. Hay 69 notas de país
+**Qué se dejó fuera y por qué.** El corpus se divide en dos. Hay 69 notas de país
 de 2 a 20 páginas y 24 publicaciones completas de hasta 669 páginas, porque
 algunas entradas del listado enlazan el libro entero en vez del capítulo. Las
 publicaciones largas se excluyeron, porque un libro con anexos estadísticos
@@ -77,7 +77,7 @@ describe la prosa corrida, no el documento completo.
 | Párrafos de cinco o más oraciones | 9% |
 | Palabras por párrafo, mediana | 44 (cuartiles 24 y 68) |
 | Palabras de la primera oración, mediana | 21 (cuartiles 15 y 27) |
-| Primeras oraciones que ya traen una cifra | 55% |
+| Primeras oraciones que ya contienen una cifra | 55% |
 | Párrafos que abren con *there is* o *it is* | 2% |
 | Apariciones de la expresión *OECD average* | 350, una cada 176 palabras |
 
@@ -117,23 +117,23 @@ conviene no construir reglas sobre ellas.
 **La primera oración no es más corta que las demás.** Mediana de 21 palabras
 contra 19,3 del resto, y ocurre en el 46% de los párrafos, que es azar.
 
-**No se reserva el dato para el final.** El 55% de las primeras oraciones ya trae
-la cifra. El patrón de abrir sin dato y cuantificar después aparece solo en el
-27% de los párrafos. La fuerza del párrafo no viene de anunciar y luego demostrar.
-Viene de que el párrafo es corto, se lee suelto y trae su dato anclado a un
-referente.
+**No se reserva el dato para el final.** El 55% de las primeras oraciones ya
+contiene la cifra. El patrón de abrir sin dato y cuantificar después aparece solo
+en el 27% de los párrafos. La fuerza del párrafo no viene de anunciar y luego
+demostrar. Viene de que el párrafo es corto, se entiende por separado y sostiene
+su afirmación con un dato anclado a un referente.
 
 ---
 
 ## 3. Las tres reglas que sí se sostienen
 
-**1. El párrafo es una unidad autónoma de una a tres oraciones.** Si no se puede
-leer suelto, está mal cortado. Si pasa de cuatro oraciones, casi siempre tiene
-dos ideas adentro y hay que partirlo.
+**1. El párrafo es una unidad autónoma de una a tres oraciones.** Si no se
+entiende por separado, está mal cortado. Si pasa de cuatro oraciones, casi
+siempre contiene dos ideas y hay que partirlo.
 
-**2. La afirmación va primero y trae su dato adentro.** No se anuncia lo que se
-va a demostrar. Se afirma con el número puesto. La segunda oración amplía,
-matiza o compara, nunca repite.
+**2. La afirmación va primero y contiene su dato.** No se anuncia lo que se va a
+demostrar. Se afirma con la cifra incluida. La segunda oración amplía, matiza o
+compara, nunca repite.
 
 **3. La afirmación se ancla contra un referente.** Un dato solo describe, un dato
 contra un punto de comparación afirma. Sirven el promedio de un grupo, la entidad
@@ -143,10 +143,11 @@ comparable, el mismo sujeto en otro año, o la meta declarada.
 
 ## 4. Español e inglés
 
-La skill trabaja en los dos idiomas y detecta cuál es sin que haya que decírselo.
+La skill trabaja en los dos idiomas y reconoce cuál es sin que haya que
+indicárselo.
 
-El corpus está en inglés y el español corre entre 15% y 20% más largo con el
-mismo contenido, así que los umbrales de palabras están ajustados.
+El corpus está en inglés y el español ocupa entre 15% y 20% más palabras para
+decir lo mismo, así que los umbrales están ajustados.
 
 | Umbral | Inglés | Español |
 |---|---|---|
@@ -170,7 +171,7 @@ git clone https://github.com/MonicaOrtizM/ocde-style ~/.claude/skills/ocde-style
 ```
 
 También funciona pasándole el enlace del repositorio a un asistente en el chat,
-o clonándola en cualquier carpeta y corriendo los scripts a mano.
+o clonándola en cualquier carpeta y ejecutando los scripts de forma manual.
 
 ### Requisitos
 
@@ -181,7 +182,7 @@ pip install pymupdf python-docx openpyxl
 ```
 
 En Windows sobre ARM conviene usar el intérprete x64, porque algunas de estas
-librerías no traen ruedas para ARM.
+librerías no publican paquetes precompilados para ARM.
 
 ### Modo generar
 
@@ -191,7 +192,7 @@ Se invoca en conversación, no por línea de comandos.
 /ocde-style genera una nota de dos páginas con estos insumos
 ```
 
-Y se adjunta lo que haya, una hoja de cálculo, unas viñetas, un acta, un
+Se adjunta el material disponible, una hoja de cálculo, unas viñetas, un acta, un
 borrador ajeno. El procedimiento que sigue es este.
 
 1. Extrae de los insumos cada afirmación posible con el dato que la sostiene.
@@ -199,7 +200,7 @@ borrador ajeno. El procedimiento que sigue es este.
 3. Marca como pendiente de fuente las afirmaciones sin dato, no las escribe.
 4. Ordena por consecuencia, no por cronología ni por el orden del insumo.
 5. Escribe un párrafo por afirmación, nunca dos afirmaciones en uno.
-6. Audita el resultado y corrige lo que se salga.
+6. Audita el resultado y corrige lo que se aparte del perfil.
 
 ### Modo editar
 
@@ -211,19 +212,19 @@ Primero audita, después interviene solo donde el número lo pide. Un párrafo d
 cinco oraciones se parte por la segunda idea. Un párrafo sin dato se devuelve
 con la pregunta de qué lo sostiene. Un párrafo sin referente se ancla.
 
-**Nunca suprime datos ciertos.** Si una afirmación no se puede verificar, la deja
-y pregunta.
+**Nunca suprime datos ciertos.** Si una afirmación no se puede verificar, la
+conserva y pregunta.
 
 ### Modo auditar
 
-Es el único que se corre directo y no toca el archivo.
+Es el único que se ejecuta directamente, y no modifica el archivo.
 
 ```bash
 python scripts/auditar_texto.py --texto borrador.docx
 ```
 
-Acepta `.docx`, `.pdf`, `.md` y `.txt`. Detecta el idioma solo. Para forzarlo o
-para guardar el informe
+Acepta `.docx`, `.pdf`, `.md` y `.txt`. Reconoce el idioma por sí mismo. Para
+indicarlo de forma explícita o para guardar el informe
 
 ```bash
 python scripts/auditar_texto.py --texto nota.pdf --idioma en --salida informe.md
@@ -245,10 +246,11 @@ python scripts/auditar_texto.py --texto nota.pdf --idioma en --salida informe.md
 ```
 
 **La columna de la derecha no es un objetivo de cero.** Es la frecuencia con que
-la propia OCDE se sale de cada regla, medida con estas mismas reglas sobre las 69
-notas. El 14% de los párrafos de la OCDE pasa de tres oraciones, y eso está bien.
+la propia OCDE se aparta de cada regla, medida con estas mismas reglas sobre las
+69 notas. El 14% de los párrafos de la OCDE pasa de tres oraciones, y eso está
+bien.
 
-Lo que importa es la distancia. Las dos flechas dicen que ese texto tiene seis
+Lo que importa es la distancia. Las dos flechas señalan que ese texto tiene seis
 veces más párrafos largos y ocho veces más párrafos pesados que el corpus. Las
 otras cuatro filas están en línea, así que ahí no hay nada que corregir. Un `<<`
 aparece cuando la tasa del texto está veinte puntos o más por encima de la
@@ -267,7 +269,7 @@ prueba de control.
 
 **Sirve bien para esto.**
 
-- Convertir insumos dispersos en una nota corta que se lea de un tirón.
+- Convertir insumos dispersos en una nota corta que se lea sin detenerse.
 - Aligerar un borrador propio que quedó con párrafos de seis oraciones.
 - Notas técnicas, fichas de proyecto, resúmenes ejecutivos, one pagers.
 - Auditar un documento antes de devolver comentarios, para separar lo que es
@@ -285,7 +287,7 @@ prueba de control.
 - Idiomas distintos del español y el inglés.
 
 **Zona intermedia.** En un documento largo conviene aplicarla al resumen
-ejecutivo y a las secciones de hallazgos, y dejar en paz los anexos
+ejecutivo y a las secciones de hallazgos, y no aplicarla a los anexos
 metodológicos.
 
 ---
@@ -295,7 +297,7 @@ metodológicos.
 **Los umbrales del español no están medidos.** Salen de aplicar un factor de
 expansión razonable sobre una medición hecha en inglés. Para fijarlos con datos
 habría que reunir un corpus comparable de documentos de política en español y
-correr los scripts sobre él. Mientras tanto, la línea base que se usa para
+ejecutar los scripts sobre él. Mientras tanto, la línea base que se usa para
 comparar un texto en español es la inglesa, y el auditor lo advierte cada vez.
 
 **El perfil viene de un solo género y un solo emisor.** Son notas de país de la
@@ -307,25 +309,25 @@ necesidades, y aplicar este perfil sin criterio los puede volver telegráficos.
 notas de países europeos o asiáticos, ni contra otros géneros de la OCDE, ni
 contra documentos escritos originalmente en español.
 
-**La detección de referente es pobre.** Funciona con una lista de expresiones, y
-por eso el 55% del propio corpus aparece marcado como sin referente. Esa tasa
-mide tanto el texto como los límites de la lista. Úsese como señal, no como
-veredicto.
+**La detección de referente es imprecisa.** Funciona con una lista de
+expresiones, y por eso el 55% del propio corpus aparece marcado como sin
+referente. Esa tasa mide tanto el texto como los límites de la lista. Sirve como
+señal, no como veredicto.
 
-**La extracción de PDF pierde cosas.** Se descarta el 82% de los bloques y algo
-de prosa se va con las tablas. En `.docx` la lectura es más limpia, aunque el
-texto dentro de tablas y cuadros no se audita.
+**La extracción de PDF pierde contenido.** Se descarta el 82% de los bloques y
+algo de prosa se pierde junto con las tablas. En `.docx` la lectura es más
+limpia, aunque el texto dentro de tablas y cuadros no se audita.
 
-**La forma no salva el fondo.** Un párrafo corto con un dato falso sigue siendo
+**La forma no corrige el fondo.** Un párrafo corto con un dato falso sigue siendo
 falso. La verificación del dato contra su fuente es otra tarea.
 
 ---
 
 ## 9. Recalibrar contra otro corpus
 
-El perfil no está grabado en piedra. Para calibrar contra otra institución, por
-ejemplo la CEPAL, el Banco Mundial o un ministerio, se bajan sus documentos y se
-corren dos comandos.
+El perfil no es definitivo. Para calibrar contra otra institución, por ejemplo la
+CEPAL, el Banco Mundial o un ministerio, se descargan sus documentos y se
+ejecutan dos comandos.
 
 ```bash
 python scripts/analizar_estilo.py --corpus "ruta al corpus" --salida perfil.md --max-paginas 20
@@ -338,7 +340,7 @@ python scripts/auditar_texto.py --calcular-base "ruta al corpus" --idioma es
 El primero produce el perfil descriptivo. El segundo produce la línea base que el
 auditor usa para comparar, y la guarda en `referencias/base_es.json`.
 
-Para bajar un corpus desde una lista de enlaces
+Para descargar un corpus desde una lista de enlaces
 
 ```bash
 python scripts/descargar_corpus.py --lista pdfs.tsv --destino "carpeta"
@@ -356,16 +358,17 @@ está en el script.
 
 ```
 ocde-style/
-├── SKILL.md                      Punto de entrada para el asistente
-├── README.md                     Este archivo
+├── SKILL.md                        Punto de entrada para el asistente
+├── README.md                       Este archivo
 ├── referencias/
-│   ├── perfil.md                 Perfil descriptivo del corpus
-│   ├── base_en.json              Línea base por regla, inglés
-│   └── corpus_ocde.tsv           Los 73 enlaces del corpus
+│   ├── perfil.md                   Perfil descriptivo del corpus
+│   ├── base_en.json                Línea base por regla, inglés
+│   ├── validacion-cruzada.md       Comparación entre los dos países
+│   └── corpus_ocde.tsv             Los 93 enlaces del corpus
 └── scripts/
-    ├── auditar_texto.py          Mide un texto y calcula líneas base
-    ├── analizar_estilo.py        Recalibra el perfil desde un corpus
-    └── descargar_corpus.py       Baja un corpus desde una lista
+    ├── auditar_texto.py            Mide un texto y calcula líneas base
+    ├── analizar_estilo.py          Recalibra el perfil desde un corpus
+    └── descargar_corpus.py         Descarga un corpus desde una lista
 ```
 
 ---
