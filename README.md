@@ -34,21 +34,22 @@ Todo lo que afirma esta skill sale de medir un corpus. Si el corpus fuera otro,
 las reglas serían otras, y por eso conviene saber exactamente cuál se usó.
 
 **El corpus.** Los documentos que la OCDE publica en su sección *Policy papers
-and briefs*, filtrados por país (Colombia) e idioma (inglés). El listado dio 75
-resultados, se resolvieron 73 enlaces y se descargaron 72 archivos. El enlace de
-cada uno está en [`referencias/corpus_ocde.tsv`](referencias/corpus_ocde.tsv),
-de modo que cualquiera puede reconstruir el corpus y repetir la medición.
+and briefs*, filtrados por país e idioma inglés. Se usaron dos filtros de país,
+Colombia y México, para poder comprobar si lo medido era el estilo del emisor o
+una particularidad de un país. El enlace de cada documento está en
+[`referencias/corpus_ocde.tsv`](referencias/corpus_ocde.tsv), de modo que
+cualquiera puede reconstruir el corpus y repetir la medición.
 
-**Los PDF no están en este repositorio.** Son 174 MB de material con derechos de
+**Los PDF no están en este repositorio.** Son 185 MB de material con derechos de
 la OCDE. Aquí solo viven los enlaces, las estadísticas agregadas y los scripts.
 Para reconstruirlo se corre `descargar_corpus.py` con el TSV.
 
-**Qué se dejó fuera y por qué.** El corpus se parte en dos. Hay 48 notas de país
+**Qué se dejó fuera y por qué.** El corpus se parte en dos. Hay 69 notas de país
 de 2 a 20 páginas y 24 publicaciones completas de hasta 669 páginas, porque
 algunas entradas del listado enlazan el libro entero en vez del capítulo. Las
 publicaciones largas se excluyeron, porque un libro con anexos estadísticos
-distorsiona cualquier medida de longitud de párrafo. El perfil sale de las 48
-notas cortas, 292 páginas, 795 párrafos de prosa y 41.899 palabras.
+distorsiona cualquier medida de longitud de párrafo. El perfil sale de las 69
+notas cortas, 426 páginas, 1.173 párrafos de prosa y 61.538 palabras.
 
 **Cómo se midió.** `analizar_estilo.py` recorre cada PDF y mide seis rasgos por
 párrafo. Número de oraciones, número de palabras, longitud de la primera
@@ -62,7 +63,7 @@ devuelve un bloque único de veinte oraciones. Y se filtra el aviso de derechos
 de autor que se repite en cada nota, porque sin ese filtro el corpus parecía usar
 el verbo *must* 85 veces cuando el uso real en prosa es 33.
 
-**Lo que se descartó del texto.** El 81% de los bloques quedó fuera por ser
+**Lo que se descartó del texto.** El 82% de los bloques quedó fuera por ser
 tablas, leyendas de figuras, encabezados sueltos o texto legal. El perfil
 describe la prosa corrida, no el documento completo.
 
@@ -72,22 +73,22 @@ describe la prosa corrida, no el documento completo.
 |---|---|
 | Oraciones por párrafo, mediana | 2 |
 | Párrafos de una sola oración | 36% |
-| Párrafos de una o dos oraciones | 64% |
+| Párrafos de una o dos oraciones | 63% |
 | Párrafos de cinco o más oraciones | 9% |
-| Palabras por párrafo, mediana | 43 (cuartiles 23 y 68) |
-| Palabras de la primera oración, mediana | 20 (cuartiles 15 y 27) |
-| Primeras oraciones que ya traen una cifra | 57% |
+| Palabras por párrafo, mediana | 44 (cuartiles 24 y 68) |
+| Palabras de la primera oración, mediana | 21 (cuartiles 15 y 27) |
+| Primeras oraciones que ya traen una cifra | 55% |
 | Párrafos que abren con *there is* o *it is* | 2% |
-| Menciones de un referente comparado | 256 en 41.899 palabras, una cada 164 |
+| Apariciones de la expresión *OECD average* | 350, una cada 176 palabras |
 
 El perfil descriptivo completo está en
 [`referencias/perfil.md`](referencias/perfil.md).
 
 ### El perfil no depende del país
 
-El corpus se armó con el filtro de un país, así que quedaba abierto si lo medido
-era el estilo del emisor o una particularidad de ese filtro. Se repitió la
-medición completa sobre un segundo país, México, con 21 notas y 529 párrafos.
+Antes de unir los dos filtros se midieron por separado, para comprobar si lo
+medido era el estilo del emisor o una particularidad de un país. Colombia aportó
+48 notas y México 21.
 
 | Regla | Colombia | México | Diferencia |
 |---|---|---|---|
@@ -103,20 +104,22 @@ del emisor, no del país. La única diferencia apreciable, ocho puntos en párra
 sin cifra, es de contenido y no de forma.
 
 Por eso el corpus se puede nutrir con notas de cualquier país sin recalibrar.
-Ampliar el corpus añade robustez estadística, no cambia las reglas. El detalle
-está en [`referencias/validacion-cruzada.md`](referencias/validacion-cruzada.md).
+Ampliar el corpus añade robustez estadística, no cambia las reglas. Comprobado
+esto, los dos filtros se unieron en una sola línea base de 69 notas, que es la
+que usa el auditor. El detalle está en
+[`referencias/validacion-cruzada.md`](referencias/validacion-cruzada.md).
 
 ### Dos hipótesis que la medición refutó
 
 Se probaron y no se sostienen. Están aquí porque son intuiciones frecuentes y
 conviene no construir reglas sobre ellas.
 
-**La primera oración no es más corta que las demás.** Mediana de 20 palabras
-contra 19,3 del resto, y ocurre en el 48% de los párrafos, que es azar.
+**La primera oración no es más corta que las demás.** Mediana de 21 palabras
+contra 19,3 del resto, y ocurre en el 46% de los párrafos, que es azar.
 
-**No se reserva el dato para el final.** El 57% de las primeras oraciones ya trae
+**No se reserva el dato para el final.** El 55% de las primeras oraciones ya trae
 la cifra. El patrón de abrir sin dato y cuantificar después aparece solo en el
-29% de los párrafos. La fuerza del párrafo no viene de anunciar y luego demostrar.
+27% de los párrafos. La fuerza del párrafo no viene de anunciar y luego demostrar.
 Viene de que el párrafo es corto, se lee suelto y trae su dato anclado a un
 referente.
 
@@ -233,17 +236,17 @@ python scripts/auditar_texto.py --texto nota.pdf --idioma en --salida informe.md
 ```
   Regla                                         texto   OCDE
 ----------------------------------------------------------------------
-  Párrafo de más de 3 oraciones                   78%    13%  <<
+  Párrafo de más de 3 oraciones                   78%    14%  <<
   Párrafo de más de 100 palabras                  56%     7%  <<
   Apertura de más de 40 palabras                   0%     9%
-  Párrafo sin ninguna cifra                       44%    29%
-  Párrafo sin referente de comparación            56%    56%
+  Párrafo sin ninguna cifra                       44%    31%
+  Párrafo sin referente de comparación            56%    55%
   Apertura que retrasa la afirmación               0%     1%
 ```
 
 **La columna de la derecha no es un objetivo de cero.** Es la frecuencia con que
-la propia OCDE se sale de cada regla, medida con estas mismas reglas sobre las 48
-notas. El 13% de los párrafos de la OCDE pasa de tres oraciones, y eso está bien.
+la propia OCDE se sale de cada regla, medida con estas mismas reglas sobre las 69
+notas. El 14% de los párrafos de la OCDE pasa de tres oraciones, y eso está bien.
 
 Lo que importa es la distancia. Las dos flechas dicen que ese texto tiene seis
 veces más párrafos largos y ocho veces más párrafos pesados que el corpus. Las
@@ -305,11 +308,11 @@ notas de países europeos o asiáticos, ni contra otros géneros de la OCDE, ni
 contra documentos escritos originalmente en español.
 
 **La detección de referente es pobre.** Funciona con una lista de expresiones, y
-por eso el 56% del propio corpus aparece marcado como sin referente. Esa tasa
+por eso el 55% del propio corpus aparece marcado como sin referente. Esa tasa
 mide tanto el texto como los límites de la lista. Úsese como señal, no como
 veredicto.
 
-**La extracción de PDF pierde cosas.** Se descarta el 81% de los bloques y algo
+**La extracción de PDF pierde cosas.** Se descarta el 82% de los bloques y algo
 de prosa se va con las tablas. En `.docx` la lectura es más limpia, aunque el
 texto dentro de tablas y cuadros no se audita.
 

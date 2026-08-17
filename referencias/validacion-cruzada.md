@@ -38,15 +38,29 @@ nota y no cómo se construye el párrafo.
 El perfil se puede nutrir con notas de cualquier país sin recalibrar. Ampliar el
 corpus añade robustez estadística, no cambia las reglas.
 
+## Qué se hizo con el resultado
+
+Comprobada la equivalencia, los dos filtros se unieron en un solo corpus de 69
+notas, 426 páginas, 1.173 párrafos de prosa y 61.538 palabras. Esa es la línea
+base que usa el auditor, en `base_en.json`, y de ahí salen los números del
+`README.md` y del `SKILL.md`.
+
+| Regla | Línea base combinada |
+|---|---|
+| Párrafo de más de 3 oraciones | 14% |
+| Párrafo de más de 100 palabras | 7% |
+| Apertura de más de 35 palabras | 9% |
+| Párrafo sin ninguna cifra | 31% |
+| Párrafo sin referente de comparación | 55% |
+| Apertura que retrasa la afirmación | 1% |
+
 ## Qué sigue abierto
 
-Los dos corpus son de países de América Latina. No se probó contra notas de
+Los dos filtros son de países de América Latina. No se probó contra notas de
 países europeos o asiáticos, ni contra otros géneros de la OCDE, ni contra
-documentos en español.
+documentos escritos originalmente en español.
 
-La línea base que usa el auditor sigue siendo la de Colombia, en
-`base_en.json`, porque es la más grande de las dos. Para reemplazarla por una
-combinada se juntan los PDF en una carpeta y se corre
+Para añadir un tercer país se bajan sus notas a la misma carpeta y se corre
 
 ```bash
 python scripts/auditar_texto.py --calcular-base "carpeta" --idioma en

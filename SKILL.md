@@ -7,34 +7,45 @@ description: Convierte insumos cualquiera (notas, datos, transcripciones, borrad
 
 Esta skill no imita el tema ni el género de la OCDE. Imita la arquitectura del
 párrafo, que es lo que hace que un documento se siga leyendo. El perfil está
-medido sobre un corpus de 48 notas de país de la OCDE, 795 párrafos y 41.899
-palabras. La construcción completa, los casos de uso y las limitaciones están
-en `README.md`, que debe leerse antes de la primera aplicación.
+medido sobre 69 notas de país, 1.173 párrafos y 61.538 palabras, con dos filtros
+de país distintos. La construcción completa, los casos de uso y las limitaciones
+están en `README.md`, que debe leerse antes de la primera aplicación.
 
 ## Las tres reglas
 
 **1. El párrafo es una unidad autónoma de una a tres oraciones.** Mediana medida
-de 2 oraciones y 43 palabras. El 36% de los párrafos del corpus tiene una sola
+de 2 oraciones y 44 palabras. El 36% de los párrafos del corpus tiene una sola
 oración y solo el 9% pasa de cinco. Si un párrafo no se puede leer suelto está
 mal cortado, y si pasa de cuatro oraciones casi siempre tiene dos ideas adentro.
 
-**2. La afirmación va primero y trae su dato adentro.** El 57% de las primeras
+**2. La afirmación va primero y trae su dato adentro.** El 55% de las primeras
 oraciones del corpus ya contiene una cifra. No se anuncia lo que se va a
 demostrar, se afirma con el número puesto. La segunda oración amplía, matiza o
 compara, nunca repite.
 
-**3. La afirmación se ancla contra un referente.** En el corpus la comparación
-aparece una vez cada 164 palabras. Sirven el promedio de un grupo, la entidad
-comparable, el mismo sujeto en otro año, o la meta declarada.
+**3. La afirmación se ancla contra un referente.** La sola expresión *OECD
+average* aparece 350 veces, una cada 176 palabras. Sirven el promedio de un
+grupo, la entidad comparable, el mismo sujeto en otro año, o la meta declarada.
 
 ## Lo que el corpus refuta
 
 No construir reglas sobre esto, porque los datos dicen que no existe.
 
-- **La primera oración no es más corta.** 20 palabras contra 19,3 del resto, en
-  el 48% de los párrafos, que es azar.
+- **La primera oración no es más corta.** 21 palabras contra 19,3 del resto, en
+  el 46% de los párrafos, que es azar.
 - **No se reserva el dato para el final.** El patrón de abrir sin cifra y
-  cuantificar después aparece solo en el 29% de los párrafos.
+  cuantificar después aparece solo en el 27% de los párrafos.
+
+## El perfil no depende del país
+
+El corpus se armó con dos filtros de país, Colombia y México, medidos por
+separado antes de unirlos. Las cuatro reglas de forma no se movieron más de dos
+puntos entre uno y otro, así que la arquitectura es del emisor y no del país. La
+única diferencia apreciable fue de contenido, ocho puntos en párrafos sin cifra.
+
+Consecuencia práctica. El corpus se puede nutrir con notas de cualquier país sin
+recalibrar. Ampliar el corpus añade robustez estadística, no cambia las reglas.
+El detalle está en `referencias/validacion-cruzada.md`.
 
 ## Umbrales
 
@@ -84,7 +95,7 @@ python scripts/auditar_texto.py --texto borrador.docx
 Acepta `.docx`, `.pdf`, `.md`, `.txt`. Detecta el idioma solo.
 
 **Cómo se lee.** El informe da la frecuencia de cada regla en el texto contra la
-frecuencia en el corpus de la OCDE. La referencia no es cero. El 13% de los
+frecuencia en el corpus de la OCDE. La referencia no es cero. El 14% de los
 párrafos de la OCDE pasa de tres oraciones. Lo que importa es la distancia, y
 solo se señala lo que está veinte puntos o más por encima.
 
@@ -104,9 +115,11 @@ cumplimiento. Por eso cada regla se reporta por separado.
 
 - Los umbrales del español no están medidos, son una conversión razonada.
 - El perfil viene de un solo género y un solo emisor, notas de país descriptivas.
+- Los dos filtros de país son de América Latina. No se probó contra notas de
+  países europeos o asiáticos.
 - La detección de referente usa una lista de expresiones y marca como sin
-  referente al 56% del propio corpus. Es señal, no veredicto.
-- Se descarta el 81% de los bloques del PDF por ser tablas y leyendas.
+  referente al 55% del propio corpus. Es señal, no veredicto.
+- Se descarta el 82% de los bloques del PDF por ser tablas y leyendas.
 - Un párrafo corto con un dato falso sigue siendo falso. La verificación del
   dato es otra tarea.
 

@@ -1,14 +1,13 @@
 {
- "documentos": 48,
- "parrafos": 1195,
+ "documentos": 69,
+ "parrafos": 1724,
  "idioma": "en",
- "corpus": "Notas de pais de la OCDE, filtro Colombia, ingles",
  "tasas": {
-  "parrafo_largo": 13,
+  "parrafo_largo": 14,
   "parrafo_pesado": 7,
   "apertura_larga": 9,
-  "sin_dato": 29,
-  "sin_referente": 56,
+  "sin_dato": 31,
+  "sin_referente": 55,
   "apertura_debil": 1
  }
 }

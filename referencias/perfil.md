@@ -1,104 +1,104 @@
 # Perfil de arquitectura de párrafo
 
-Corpus. 48 documentos, 292 páginas, 795 párrafos de prosa, 41,899 palabras.
-Se descartó el 81% de los bloques por ser tablas, leyendas o encabezados sueltos.
+Corpus. 69 documentos, 426 páginas, 1173 párrafos de prosa, 61,538 palabras.
+Se descartó el 82% de los bloques por ser tablas, leyendas o encabezados sueltos.
 
 Excluidos por largo. 24 documentos.
 
 ## Las tres hipótesis
 
-**1. El párrafo es corto.** Mediana de 2 oraciones y 43 palabras. El cuartil superior llega a 3 oraciones y 68 palabras. Solo el 9% de los párrafos tiene cinco oraciones o más.
+**1. El párrafo es corto.** Mediana de 2 oraciones y 44 palabras. El cuartil superior llega a 3 oraciones y 68 palabras. Solo el 9% de los párrafos tiene cinco oraciones o más.
 
-**2. La primera oración es más corta.** Mediana de 20 palabras contra 19.3 del resto. Ocurre en el 48% de los párrafos de dos o más oraciones.
+**2. La primera oración es más corta.** Mediana de 21 palabras contra 19.3 del resto. Ocurre en el 46% de los párrafos de dos o más oraciones.
 
-**3. La primera afirma y el resto prueba.** El 57% de las primeras oraciones contiene una cifra, frente al 70% del resto del párrafo. El patrón completo, abrir sin cifra y cuantificar después, aparece en el 29% de los párrafos.
+**3. La primera afirma y el resto prueba.** El 55% de las primeras oraciones contiene una cifra, frente al 65% del resto del párrafo. El patrón completo, abrir sin cifra y cuantificar después, aparece en el 27% de los párrafos.
 
 **Aperturas que retrasan la afirmación.** Solo el 2% de los párrafos abre con there is, it is, this is, in this o according to.
 
 ## Distribución de oraciones por párrafo
 
 - 1 oración(es). 36%
-- 2 oración(es). 28%
-- 3 oración(es). 17%
+- 2 oración(es). 27%
+- 3 oración(es). 18%
 - 4 oración(es). 10%
 - 5 oración(es). 5%
 - 6 oración(es). 2%
 
 ## Longitudes
 
-- Párrafo. media 52.7 palabras, mediana 43, cuartiles 23 y 68, p90 100.
-- Primera oración. media 22.7, mediana 20, cuartiles 15 y 27, p90 35.
-- Resto del párrafo. media 21.2.
-- Llamados a figura o tabla por documento. 5.6
+- Párrafo. media 52.5 palabras, mediana 44, cuartiles 24 y 68, p90 98.
+- Primera oración. media 22.8, mediana 21, cuartiles 15 y 27, p90 35.
+- Resto del párrafo. media 21.0.
+- Llamados a figura o tabla por documento. 5.3
 
 ## Conectores
 
-- while. 64
-- however. 26
-- overall. 21
-- therefore. 18
-- although. 16
-- in addition. 10
-- furthermore. 7
-- still. 6
-- moreover. 6
-- whereas. 6
-- yet. 5
-- as a result. 4
-- at the same time. 2
-- in particular. 2
-- nevertheless. 2
+- while. 95
+- however. 42
+- overall. 32
+- although. 23
+- therefore. 22
+- in addition. 15
+- moreover. 13
+- still. 13
+- furthermore. 8
+- whereas. 8
+- yet. 7
+- as a result. 5
+- in particular. 4
+- nevertheless. 3
+- at the same time. 3
 - meanwhile. 2
 
 ## Fórmulas de comparación
 
-- oecd average. 255
-- compared to. 76
-- below the. 40
-- above the. 32
-- latin america. 19
-- half of. 15
-- compared with. 14
-- in line with. 10
-- than in. 9
-- relative to. 6
+- oecd average. 350
+- compared to. 110
+- below the. 58
+- above the. 50
+- compared with. 28
+- latin america. 27
+- half of. 21
+- in line with. 18
+- than in. 11
+- relative to. 8
+- lowest among. 3
 - one of the lowest. 1
-- lowest among. 1
 
 ## Verbos de recomendación
 
-- could. 19
-- should. 17
-- must. 6
-- need to. 6
-- requires. 4
-- needs to. 4
+- could. 28
+- should. 24
+- must. 14
+- need to. 8
+- requires. 6
+- needs to. 5
 - are needed. 1
 
 ## Cómo abren los párrafos
 
 - in colombia. 55
+- in mexico. 21
+- between and. 20
+- the full. 18
+- the oecd. 17
 - of teachers. 15
-- between and. 12
-- the share. 10
-- the oecd. 9
-- the full. 8
+- in the. 12
+- this country. 12
+- the share. 11
+- the tax. 11
+- this work. 8
+- this note. 8
 - statistically significant. 8
 - colombia fulfils. 7
-- in the. 7
+- mexico fulfils. 7
+- the information. 7
 - colombia has. 7
-- the tax. 7
-- this note. 6
-- data on. 6
+- data on. 7
+- the stri. 7
+- trust in. 6
+- across the. 6
+- there are. 6
 - colombia performs. 6
-- the colombian. 5
-- this country. 5
-- some of. 5
-- the stri. 5
-- full-time teachers. 5
-- this work. 4
-- the information. 4
-- across the. 4
-- trust in. 4
-- represents the. 4
-- legal services. 4
+- see health. 6
+- represents the. 6
