@@ -83,6 +83,29 @@ describe la prosa corrida, no el documento completo.
 El perfil descriptivo completo está en
 [`referencias/perfil.md`](referencias/perfil.md).
 
+### El perfil no depende del país
+
+El corpus se armó con el filtro de un país, así que quedaba abierto si lo medido
+era el estilo del emisor o una particularidad de ese filtro. Se repitió la
+medición completa sobre un segundo país, México, con 21 notas y 529 párrafos.
+
+| Regla | Colombia | México | Diferencia |
+|---|---|---|---|
+| Párrafo de más de 3 oraciones | 13% | 15% | 2 puntos |
+| Párrafo de más de 100 palabras | 7% | 7% | 0 |
+| Apertura de más de 35 palabras | 9% | 9% | 0 |
+| Apertura que retrasa la afirmación | 1% | 1% | 0 |
+| Párrafo sin referente de comparación | 56% | 53% | 3 puntos |
+| Párrafo sin ninguna cifra | 29% | 37% | 8 puntos |
+
+**Las cuatro reglas de forma son prácticamente idénticas.** La arquitectura es
+del emisor, no del país. La única diferencia apreciable, ocho puntos en párrafos
+sin cifra, es de contenido y no de forma.
+
+Por eso el corpus se puede nutrir con notas de cualquier país sin recalibrar.
+Ampliar el corpus añade robustez estadística, no cambia las reglas. El detalle
+está en [`referencias/validacion-cruzada.md`](referencias/validacion-cruzada.md).
+
 ### Dos hipótesis que la medición refutó
 
 Se probaron y no se sostienen. Están aquí porque son intuiciones frecuentes y
@@ -277,9 +300,9 @@ OCDE, documentos descriptivos que posicionan a un país contra un promedio. Un
 policy paper con recomendaciones o un documento de proyecto tienen otras
 necesidades, y aplicar este perfil sin criterio los puede volver telegráficos.
 
-**El corpus está filtrado por un país.** Se usó el filtro de Colombia para tener
-un conjunto homogéneo y manejable. La arquitectura de párrafo no debería depender
-del país, pero eso no se verificó contra otros filtros.
+**El corpus está filtrado por dos países de América Latina.** No se probó contra
+notas de países europeos o asiáticos, ni contra otros géneros de la OCDE, ni
+contra documentos escritos originalmente en español.
 
 **La detección de referente es pobre.** Funciona con una lista de expresiones, y
 por eso el 56% del propio corpus aparece marcado como sin referente. Esa tasa
