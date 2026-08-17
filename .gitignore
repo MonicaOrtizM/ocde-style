@@ -1,0 +1,24 @@
+# El corpus de PDF no se redistribuye. Se reconstruye con
+# scripts/descargar_corpus.py a partir de referencias/corpus_ocde.tsv
+*.pdf
+*.docx
+*.xlsx
+corpus/
+Corpus*/
+
+# Salidas de trabajo
+informe*.md
+auditoria*.md
+perfil_*.md
+perfil_*.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
