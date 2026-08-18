@@ -183,6 +183,122 @@ def oraciones_de(p):
     return [o.strip() for o in RE_ORACION.split(p) if len(RE_PALABRA.findall(o)) >= 3]
 
 
+# Palabras frecuentes que sobreviven al filtro de longitud y, si no se quitan,
+# hacen que dos párrafos cualesquiera parezcan hablar de lo mismo.
+STOP = {
+    "es": set("""puede pueden podría podrian todos todas estos estas mismo misma
+    mismos mismas sobre entre porque cuando donde también ademas además desde
+    hasta según mientras aunque durante mediante través cualquier algunos algunas
+    otros otras tiene tienen tener hacer hecho parte partes forma formas manera
+    mayor menor mejor peor nivel niveles caso casos decir cada esta este esto
+    para como muy sino solo sólo debe deben debería siendo fueron estaba estaban
+    haber habia había siempre nunca luego antes despues después primero segundo
+    tercero cuarto quinto general generales especifico específico principal
+    principales nuevo nueva nuevos nuevas gran grande grandes pequeno pequeño
+    total totales""".split()),
+    "en": set("""which their there these those other others about would could
+    should being where while after before between through during however
+    therefore because though since still than then they them with from that this
+    have been more most some such only also into over under both each when what
+    will does term terms first second third fourth general specific main major
+    minor level levels case cases part parts form forms same different large
+    small total overall""".split()),
+}
+
+
+def tokens_contenido(texto, idioma):
+    """Palabras con carga semántica, reducidas a su raíz aproximada.
+
+    El truncamiento a seis caracteres hace de lematizador pobre y es
+    imprescindible en español, que es muy flexivo. Sin él, designados y designa,
+    o reunión y reuniones, cuentan como palabras distintas, y dos párrafos casi
+    idénticos se quedan por debajo de cualquier umbral razonable.
+    """
+    salida = set()
+    for w in RE_PALABRA.findall(texto):
+        if len(w) < 5:
+            continue
+        raiz = sin_tildes(w)
+        if raiz in STOP[idioma]:
+            continue
+        salida.add(raiz[:6])
+    return salida
+
+
+def cifras_de(texto):
+    return set(re.findall(r"\d+(?:[.,]\d+)*", texto))
+
+
+def similitud(a, b):
+    """Cuánto se solapan dos párrafos, entre 0 y 1.
+
+    Se usa el coeficiente de solapamiento y no Jaccard, porque un párrafo corto
+    contenido dentro de uno largo es justamente el caso que interesa, y Jaccard
+    lo castiga por la diferencia de tamaño.
+
+    Compartir una cifra exacta suma, porque dos párrafos que citan el mismo
+    número casi siempre están diciendo lo mismo dos veces.
+    """
+    ta, tb = a["tokens"], b["tokens"]
+    if len(ta) < 4 or len(tb) < 4:
+        return 0.0, set(), set()
+    comunes = ta & tb
+    base = len(comunes) / min(len(ta), len(tb))
+    cifras = a["cifras"] & b["cifras"]
+    return min(1.0, base + (0.15 if cifras else 0.0)), comunes, cifras
+
+
+def pares_redundantes(filas, umbral):
+    """Pares de párrafos que probablemente dicen lo mismo.
+
+    Compara todos contra todos, no solo los contiguos, porque la repetición que
+    de verdad estorba suele estar a varias páginas de distancia.
+    """
+    salida = []
+    for i in range(len(filas)):
+        for j in range(i + 1, len(filas)):
+            s, comunes, cifras = similitud(filas[i], filas[j])
+            if s >= umbral:
+                salida.append({
+                    "a": filas[i], "b": filas[j], "similitud": round(s, 2),
+                    "comunes": sorted(comunes, key=len, reverse=True)[:8],
+                    "cifras": sorted(cifras)[:5],
+                    "distancia": filas[j]["n"] - filas[i]["n"],
+                    "juntos_palabras": filas[i]["palabras"] + filas[j]["palabras"],
+                    "juntos_oraciones": filas[i]["oraciones"] + filas[j]["oraciones"],
+                })
+    return sorted(salida, key=lambda x: -x["similitud"])
+
+
+IDENTICO = 0.90   # por encima de esto los dos párrafos dicen lo mismo
+
+
+def sugerencia(p, u):
+    """Qué hacer con un par repetido. Tres casos, no uno.
+
+    Fusionar no siempre es la respuesta. Si los dos párrafos dicen exactamente lo
+    mismo no hay nada que combinar, sobra uno. Y si al juntarlos se pasa de los
+    umbrales, entonces no eran una idea repetida sino dos ideas que comparten
+    vocabulario.
+    """
+    cabe = (p["juntos_oraciones"] <= u["oraciones_max"]
+            and p["juntos_palabras"] <= u["palabras_max"])
+    tamaño = (f"Juntos dan {p['juntos_oraciones']} oraciones y "
+              f"{p['juntos_palabras']} palabras")
+    if p["similitud"] >= IDENTICO:
+        return ("**Eliminar uno.** Con este solapamiento los dos afirman lo "
+                "mismo y no hay nada que combinar. Conservar el que traiga el "
+                "dato más preciso o la fuente más fuerte, y borrar el otro.")
+    if cabe:
+        return (f"**Fusionar.** Tratan la misma idea con aportes distintos. "
+                f"{tamaño}, así que caben en un párrafo. La afirmación común va "
+                f"en la primera oración y los dos datos en la segunda.")
+    return (f"**Depurar, no fusionar.** {tamaño}, y no caben en un párrafo. "
+            f"Revisar si de verdad es una idea repetida o son dos ideas que "
+            f"comparten vocabulario. Si es lo primero, dejar una sola "
+            f"afirmación con el mejor dato.")
+
+
 REGLAS = [
     ("parrafo_largo", "Párrafo de más de {oraciones_max} oraciones"),
     ("parrafo_pesado", "Párrafo de más de {palabras_max} palabras"),
@@ -207,7 +323,7 @@ def auditar(parrafos, idioma):
     for i, p in enumerate(parrafos, start=1):
         ors = oraciones_de(p)
         palabras = len(RE_PALABRA.findall(p))
-        if not ors or palabras < 12:         # títulos, rótulos, firmas, pies
+        if not ors or palabras < 10:         # títulos, rótulos, firmas, pies
             descartados += 1
             continue
         primera = len(RE_PALABRA.findall(ors[0]))
@@ -223,6 +339,8 @@ def auditar(parrafos, idioma):
         filas.append({"n": i, "oraciones": len(ors), "palabras": palabras,
                       "primera": primera, "marcas": marcas,
                       "estructural": marcas["parrafo_largo"] or marcas["parrafo_pesado"],
+                      "tokens": tokens_contenido(p, idioma),
+                      "cifras": cifras_de(p),
                       "texto": p[:150]})
     return filas, descartados
 
@@ -300,6 +418,8 @@ def main():
                     help="Recalcula la línea base sobre un corpus y la guarda")
     ap.add_argument("--idioma", choices=["es", "en", "auto"], default="auto")
     ap.add_argument("--salida")
+    ap.add_argument("--umbral-redundancia", type=float, default=0.75,
+                    help="Solapamiento mínimo para señalar un par. Por defecto 0.75")
     args = ap.parse_args()
 
     if args.calcular_base:
@@ -387,6 +507,27 @@ def main():
     if not señalados:
         a("Ninguno. La estructura de párrafo está dentro del perfil.\n")
 
+    pares = pares_redundantes(filas, args.umbral_redundancia)
+    a("## Ideas que se repiten\n")
+    a(f"Pares de párrafos con un solapamiento de contenido igual o mayor a "
+      f"{args.umbral_redundancia}. Se comparan todos contra todos, no solo los "
+      f"contiguos.\n")
+    if not pares:
+        a("Ninguno. No hay párrafos que digan lo mismo dos veces.\n")
+    for p in pares[:10]:
+        accion = sugerencia(p, u)
+        vecinos = ("contiguos" if p["distancia"] == 1
+                   else f"separados por {p['distancia'] - 1} párrafos")
+        a(f"**Párrafos {p['a']['n']} y {p['b']['n']}**, solapamiento "
+          f"{p['similitud']}, {vecinos}.")
+        a(f"  Comparten. {', '.join(p['comunes'])}"
+          + (f". Misma cifra, {', '.join(p['cifras'])}" if p["cifras"] else ""))
+        a(f"  {accion}")
+        a(f"  > {p['a']['texto']}...")
+        a(f"  > {p['b']['texto']}...\n")
+    if len(pares) > 10:
+        a(f"Y {len(pares) - 10} pares más por debajo de estos.\n")
+
     if args.salida:
         with open(args.salida, "w", encoding="utf-8") as f:
             f.write("\n".join(L))
@@ -410,6 +551,18 @@ def main():
     if señalados:
         print("  Párrafos " + ", ".join(str(f["n"]) for f in señalados[:25]) +
               (" …" if len(señalados) > 25 else ""))
+    print(f"  Pares que se repiten       {len(pares):>3}"
+          f"   (solapamiento >= {args.umbral_redundancia})")
+    for p in pares[:6]:
+        if p["similitud"] >= IDENTICO:
+            que = "eliminar uno"
+        elif (p["juntos_oraciones"] <= u["oraciones_max"]
+              and p["juntos_palabras"] <= u["palabras_max"]):
+            que = "fusionar"
+        else:
+            que = "depurar"
+        print(f"    {p['a']['n']:>3} y {p['b']['n']:<3} sol. {p['similitud']:<5}"
+              f" {que:<13} {', '.join(p['comunes'][:4])}")
     if base:
         nota = (" La base está en inglés y el texto no, así que las tasas de "
                 "palabras se comparan con umbrales distintos."

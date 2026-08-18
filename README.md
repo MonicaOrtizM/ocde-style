@@ -20,7 +20,7 @@ Esta skill mide esa arquitectura sobre un corpus real, la enseña y la audita.
 |---|---|---|
 | **Generar** | Insumos de cualquier tipo, notas, datos, transcripción, viñetas | Prosa con la arquitectura del perfil |
 | **Editar** | Un texto que ya existe | El mismo texto reestructurado por párrafo |
-| **Auditar** | Un `.docx`, `.pdf`, `.md` o `.txt` | Informe de frecuencias contra la línea base |
+| **Auditar** | Un `.docx`, `.pdf`, `.md` o `.txt` | Qué párrafos partir, qué ideas se repiten, y las frecuencias contra la línea base |
 
 **No hace estas otras.** No verifica que los datos sean ciertos, solo revisa la
 forma. No corrige ortografía ni gramática. No traduce. No inventa datos, si una
@@ -156,7 +156,7 @@ decir lo mismo, así que los umbrales están ajustados.
 | Palabras de la apertura | 35 | 40 |
 
 **Este ajuste es una conversión razonada, no una medición.** Es la limitación más
-importante de la skill y se explica en la sección 8.
+importante de la skill y se explica en la sección 9.
 
 ---
 
@@ -237,17 +237,21 @@ python scripts/auditar_texto.py --texto nota.pdf --idioma en --salida informe.md
 ```
   Regla                                         texto   OCDE
 ----------------------------------------------------------------------
-  Párrafo de más de 3 oraciones                   78%    14%  <<
-  Párrafo de más de 100 palabras                  56%     7%  <<
-  Apertura de más de 40 palabras                   0%     9%
-  Párrafo sin ninguna cifra                       44%    31%
-  Párrafo sin referente de comparación            56%    55%
+  Párrafo de más de 3 oraciones                   78%    13%  <<
+  Párrafo de más de 100 palabras                  56%     6%  <<
+  Apertura de más de 40 palabras                   0%     8%
+  Párrafo sin ninguna cifra                       44%    33%
+  Párrafo sin referente de comparación            56%    58%
   Apertura que retrasa la afirmación               0%     1%
+======================================================================
+  Señalados por estructura     8 de 9
+  Párrafos 7, 12, 13, 17, 6, 16, 20, 9
+  Pares que se repiten         0   (solapamiento >= 0.75)
 ```
 
 **La columna de la derecha no es un objetivo de cero.** Es la frecuencia con que
 la propia OCDE se aparta de cada regla, medida con estas mismas reglas sobre las
-69 notas. El 14% de los párrafos de la OCDE pasa de tres oraciones, y eso está
+69 notas. El 13% de los párrafos de la OCDE pasa de tres oraciones, y eso está
 bien.
 
 Lo que importa es la distancia. Las dos flechas señalan que ese texto tiene seis
@@ -255,6 +259,10 @@ veces más párrafos largos y ocho veces más párrafos pesados que el corpus. L
 otras cuatro filas están en línea, así que ahí no hay nada que corregir. Un `<<`
 aparece cuando la tasa del texto está veinte puntos o más por encima de la
 referencia.
+
+**Las dos últimas líneas son las accionables.** La primera dice qué párrafos hay
+que partir, ordenados del más pesado al menos. La segunda dice qué ideas se
+repiten, y se explica en la sección siguiente.
 
 **Por qué no hay un porcentaje de cumplimiento.** La primera versión daba un
 veredicto de cumple o no cumple exigiendo las seis reglas a la vez, y al probarla
@@ -265,7 +273,55 @@ prueba de control.
 
 ---
 
-## 7. Cuándo usarla y cuándo no
+## 7. Ideas que se repiten
+
+El auditor compara todos los párrafos contra todos, no solo los contiguos,
+porque la repetición que más estorba suele estar a varias páginas de distancia.
+La comparación es de vocabulario, sobre las raíces de las palabras con carga
+semántica y las cifras que cada párrafo cita.
+
+Para cada par señalado devuelve una de tres acciones, y la distinción importa.
+
+| Solapamiento | ¿Caben juntos? | Acción |
+|---|---|---|
+| 0,90 o más | indiferente | **Eliminar uno.** Afirman lo mismo, no hay nada que combinar |
+| Entre 0,75 y 0,90 | sí | **Fusionar.** Misma idea con aportes distintos |
+| Entre 0,75 y 0,90 | no | **Depurar.** Revisar si es repetición o son dos ideas |
+
+**La tercera fila es la que evita que esta función pelee con el perfil.**
+Fusionar dos párrafos hasta pasar de tres oraciones cambia un defecto por otro.
+
+Así se ve sobre un texto con repetición deliberada.
+
+```
+**Párrafos 3 y 4**, solapamiento 0.9, contiguos.
+  Comparten. presid, miembr, ordina, fusion, asesor, reunio, direct, minist
+  **Eliminar uno.** Con este solapamiento los dos afirman lo mismo y no hay nada
+  que combinar. Conservar el que traiga el dato más preciso o la fuente más
+  fuerte, y borrar el otro.
+
+**Párrafos 1 y 2**, solapamiento 0.75, contiguos.
+  Comparten. minist, agenci, presup. Misma cifra, 95
+  **Fusionar.** Tratan la misma idea con aportes distintos. Juntos dan 2
+  oraciones y 23 palabras, así que caben en un párrafo. La afirmación común va en
+  la primera oración y los dos datos en la segunda.
+```
+
+**El corpus de la OCDE no sirve de referencia para esta regla.** Sus notas de
+país siguen plantilla y repiten por diseño. Una sola nota de TALIS arrojó 201
+pares, casi todos leyendas de figuras con la misma estructura. Por eso el umbral
+no se fijó imitando al corpus, sino por su distribución de similitudes, cuyo
+percentil 99 está en 0,86. El valor por defecto es 0,75 y se cambia con
+`--umbral-redundancia`.
+
+**Detecta vocabulario, no significado.** Dos párrafos que dicen lo mismo con
+palabras distintas no se detectan. En español la comparación usa las raíces
+truncadas de las palabras, porque sin eso *designados* y *designa* cuentan como
+términos diferentes y dos párrafos casi idénticos quedan por debajo del umbral.
+
+---
+
+## 8. Cuándo usarla y cuándo no
 
 **Sirve bien para esto.**
 
@@ -292,7 +348,7 @@ metodológicos.
 
 ---
 
-## 8. Limitaciones
+## 9. Limitaciones
 
 **Los umbrales del español no están medidos.** Salen de aplicar un factor de
 expansión razonable sobre una medición hecha en inglés. Para fijarlos con datos
@@ -310,7 +366,7 @@ notas de países europeos o asiáticos, ni contra otros géneros de la OCDE, ni
 contra documentos escritos originalmente en español.
 
 **La detección de referente es imprecisa.** Funciona con una lista de
-expresiones, y por eso el 55% del propio corpus aparece marcado como sin
+expresiones, y por eso el 58% del propio corpus aparece marcado como sin
 referente. Esa tasa mide tanto el texto como los límites de la lista. Sirve como
 señal, no como veredicto.
 
@@ -323,7 +379,7 @@ falso. La verificación del dato contra su fuente es otra tarea.
 
 ---
 
-## 9. Recalibrar contra otro corpus
+## 10. Recalibrar contra otro corpus
 
 El perfil no es definitivo. Para calibrar contra otra institución, por ejemplo la
 CEPAL, el Banco Mundial o un ministerio, se descargan sus documentos y se
@@ -354,7 +410,7 @@ está en el script.
 
 ---
 
-## 10. Archivos
+## 11. Archivos
 
 ```
 ocde-style/

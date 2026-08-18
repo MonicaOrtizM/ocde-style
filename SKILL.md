@@ -83,6 +83,8 @@ Auditar primero, intervenir solo donde el número lo pide.
 - Párrafo sin cifra. Preguntar qué dato lo sostiene. Si no hay, es opinión y
   debe decirse como tal.
 - Párrafo sin referente. Añadir contra qué se compara.
+- Par de párrafos que se repiten. Aplicar la acción que indique el informe,
+  eliminar uno, fusionar o depurar. No fusionar por costumbre.
 - Apertura con hay, es importante, este documento, cabe señalar, según.
   Reescribir poniendo el sujeto real al frente.
 - **No suprimir datos ciertos.** Si algo no se puede verificar, se deja y se
@@ -95,9 +97,40 @@ python scripts/auditar_texto.py --texto borrador.docx
 Acepta `.docx`, `.pdf`, `.md`, `.txt`. Reconoce el idioma por sí mismo.
 
 **Cómo se lee.** El informe da la frecuencia de cada regla en el texto contra la
-frecuencia en el corpus de la OCDE. La referencia no es cero. El 14% de los
+frecuencia en el corpus de la OCDE. La referencia no es cero. El 13% de los
 párrafos de la OCDE pasa de tres oraciones. Lo que importa es la distancia, y
 solo se señala lo que está veinte puntos o más por encima.
+
+El informe cierra con dos listas accionables. Los párrafos que hay que partir,
+porque pasan de tres oraciones o de cien palabras. Y los pares de párrafos que
+dicen lo mismo, explicados abajo.
+
+## Ideas que se repiten
+
+El auditor compara todos los párrafos contra todos, no solo los contiguos,
+porque la repetición que más estorba suele estar a varias páginas de distancia.
+Para cada par señalado devuelve una de tres acciones, y hay que respetar cuál.
+
+**Solapamiento de 0,90 o más. Eliminar uno.** Los dos afirman lo mismo y no hay
+nada que combinar. Se conserva el que traiga el dato más preciso o la fuente más
+fuerte.
+
+**Entre 0,75 y 0,90, y juntos caben en un párrafo. Fusionar.** Tratan la misma
+idea con aportes distintos. La afirmación común va en la primera oración y los
+dos datos en la segunda.
+
+**Entre 0,75 y 0,90, y juntos no caben. Depurar, no fusionar.** Hay que revisar
+si es una idea repetida o dos ideas que comparten vocabulario. Si es lo primero,
+se deja una sola afirmación con el mejor dato.
+
+**La tercera regla es la que evita que esta función pelee con el perfil.**
+Fusionar dos párrafos hasta pasar de tres oraciones cambia un defecto por otro.
+
+**El corpus de la OCDE no sirve de referencia para esta regla.** Sus notas de
+país siguen plantilla y repiten por diseño, hasta 201 pares en una sola nota. El
+umbral de 0,75 sale de la distribución de similitudes del corpus, cuyo percentil
+99 está en 0,86, y no de imitar su tasa de repetición. Se ajusta con
+`--umbral-redundancia`.
 
 **No inventar un porcentaje de cumplimiento.** La primera versión exigía las seis
 reglas a la vez y reprobaba a las propias notas de la OCDE con 6% a 45% de
@@ -118,7 +151,9 @@ cumplimiento. Por eso cada regla se reporta por separado.
 - Los dos filtros de país son de América Latina. No se probó contra notas de
   países europeos o asiáticos.
 - La detección de referente es imprecisa, usa una lista de expresiones y marca
-  como sin referente al 55% del propio corpus. Es señal, no veredicto.
+  como sin referente al 58% del propio corpus. Es señal, no veredicto.
+- La detección de repetición compara vocabulario, no significado. Dos párrafos
+  que hablan del mismo tema con palabras distintas no se detectan.
 - Se descarta el 82% de los bloques del PDF por ser tablas y leyendas.
 - Un párrafo corto con un dato falso sigue siendo falso. La verificación del
   dato es otra tarea.
