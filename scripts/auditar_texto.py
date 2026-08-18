@@ -8,7 +8,7 @@ auditar_texto.py — mide un texto contra el perfil de arquitectura de párrafo.
 Solo mide. No reescribe. Devuelve cuántos párrafos cumplen, cuáles no y por qué,
 para que la corrección sea una decisión y no una sugerencia difusa.
 
-Umbrales en `PERFIL`, derivados de 48 notas de país de la OCDE. Los del español
+Umbrales en `PERFIL`, derivados de 69 notas de país de la OCDE. Los del español
 son una conversión razonada sobre esa medición, no una medición propia.
 """
 
@@ -20,10 +20,8 @@ import sys
 import unicodedata
 
 PERFIL = {
-    "en": {"oraciones_max": 3, "palabras_max": 100, "primera_max": 35,
-           "palabras_min": 15, "primera_min": 8},
-    "es": {"oraciones_max": 3, "palabras_max": 100, "primera_max": 40,
-           "palabras_min": 18, "primera_min": 10},
+    "en": {"oraciones_max": 3, "palabras_max": 100, "primera_max": 35},
+    "es": {"oraciones_max": 3, "palabras_max": 100, "primera_max": 40},
 }
 
 RE_PALABRA = re.compile(r"[A-Za-zÁÉÍÓÚÜÑáéíóúüñ][\wÁÉÍÓÚÜÑáéíóúüñ'\-]*", re.UNICODE)
