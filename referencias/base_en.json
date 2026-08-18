@@ -1,13 +1,13 @@
 {
  "documentos": 69,
- "parrafos": 1915,
+ "parrafos": 1178,
  "idioma": "en",
  "tasas": {
-  "parrafo_largo": 13,
-  "parrafo_pesado": 6,
-  "apertura_larga": 8,
-  "sin_dato": 33,
-  "sin_referente": 58,
-  "apertura_debil": 1
+  "parrafo_largo": 19,
+  "parrafo_pesado": 10,
+  "apertura_larga": 11,
+  "sin_dato": 27,
+  "sin_referente": 44,
+  "apertura_debil": 2
  }
 }

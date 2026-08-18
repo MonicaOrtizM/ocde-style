@@ -49,7 +49,7 @@ de 2 a 20 páginas y 24 publicaciones completas de hasta 669 páginas, porque
 algunas entradas del listado enlazan el libro entero en vez del capítulo. Las
 publicaciones largas se excluyeron, porque un libro con anexos estadísticos
 distorsiona cualquier medida de longitud de párrafo. El perfil sale de las 69
-notas cortas, 426 páginas, 1.173 párrafos de prosa y 61.538 palabras.
+notas cortas, 426 páginas, 1.178 párrafos de prosa y 61.640 palabras.
 
 **Cómo se midió.** `analizar_estilo.py` recorre cada PDF y mide seis rasgos por
 párrafo. Número de oraciones, número de palabras, longitud de la primera
@@ -75,9 +75,9 @@ describe la prosa corrida, no el documento completo.
 | Párrafos de una sola oración | 36% |
 | Párrafos de una o dos oraciones | 63% |
 | Párrafos de cinco o más oraciones | 9% |
-| Palabras por párrafo, mediana | 44 (cuartiles 24 y 68) |
+| Palabras por párrafo, mediana | 43 (cuartiles 23 y 68) |
 | Palabras de la primera oración, mediana | 21 (cuartiles 15 y 27) |
-| Primeras oraciones que ya contienen una cifra | 55% |
+| Primeras oraciones que ya contienen una cifra | 54% |
 | Párrafos que abren con *there is* o *it is* | 2% |
 | Apariciones de la expresión *OECD average* | 350, una cada 176 palabras |
 
@@ -92,15 +92,15 @@ medido era el estilo del emisor o una particularidad de un país. Colombia aport
 
 | Regla | Colombia | México | Diferencia |
 |---|---|---|---|
-| Párrafo de más de 3 oraciones | 13% | 15% | 2 puntos |
-| Párrafo de más de 100 palabras | 7% | 7% | 0 |
-| Apertura de más de 35 palabras | 9% | 9% | 0 |
-| Apertura que retrasa la afirmación | 1% | 1% | 0 |
-| Párrafo sin referente de comparación | 56% | 53% | 3 puntos |
-| Párrafo sin ninguna cifra | 29% | 37% | 8 puntos |
+| Párrafo de más de 3 oraciones | 19% | 20% | 1 punto |
+| Párrafo de más de 100 palabras | 10% | 9% | 1 punto |
+| Apertura de más de 35 palabras | 11% | 10% | 1 punto |
+| Apertura que retrasa la afirmación | 2% | 2% | 0 |
+| Párrafo sin referente de comparación | 44% | 45% | 1 punto |
+| Párrafo sin ninguna cifra | 24% | 34% | 10 puntos |
 
-**Las cuatro reglas de forma son prácticamente idénticas.** La arquitectura es
-del emisor, no del país. La única diferencia apreciable, ocho puntos en párrafos
+**Cinco de las seis reglas quedan dentro de un punto.** La arquitectura es
+del emisor, no del país. La única diferencia apreciable, diez puntos en párrafos
 sin cifra, es de contenido y no de forma.
 
 Por eso el corpus se puede nutrir con notas de cualquier país sin recalibrar.
@@ -117,7 +117,7 @@ conviene no construir reglas sobre ellas.
 **La primera oración no es más corta que las demás.** Mediana de 21 palabras
 contra 19,3 del resto, y ocurre en el 46% de los párrafos, que es azar.
 
-**No se reserva el dato para el final.** El 55% de las primeras oraciones ya
+**No se reserva el dato para el final.** El 54% de las primeras oraciones ya
 contiene la cifra. El patrón de abrir sin dato y cuantificar después aparece solo
 en el 27% de los párrafos. La fuerza del párrafo no viene de anunciar y luego
 demostrar. Viene de que el párrafo es corto, se entiende por separado y sostiene
@@ -157,6 +157,30 @@ decir lo mismo, así que los umbrales están ajustados.
 
 **Este ajuste es una conversión razonada, no una medición.** Es la limitación más
 importante de la skill y se explica en la sección 9.
+
+### Los umbrales se pueden mover, hasta cierto punto
+
+Cada umbral se ajusta por línea de comandos, y cada uno tiene un techo. Por
+encima del techo el auditor se niega y explica por qué, en vez de obedecer.
+
+| Umbral | Opción | Por defecto | Techo |
+|---|---|---|---|
+| Oraciones por párrafo | `--max-oraciones` | 3 | **5** |
+| Palabras por párrafo | `--max-palabras` | 100 | **150** |
+| Palabras de la apertura | `--max-apertura` | 35 en, 40 es | **60** |
+
+**El techo no es paternalismo, es coherencia.** Si se admite un párrafo de ocho
+oraciones la skill sigue midiendo algo, pero ya no mide el estilo que dice medir,
+porque un párrafo así no se entiende por separado y la regla 1 deja de aplicar.
+Los tres techos salen de la medición. El p90 del corpus es de 3 oraciones y 98
+palabras, y solo el 9% de los párrafos llega a cinco oraciones.
+
+```bash
+python scripts/auditar_texto.py --texto informe.docx --max-oraciones 4
+```
+
+Cuando un umbral se ajusta, el informe lo anuncia en la cabecera, para que nadie
+lea el resultado creyendo que salió del perfil por defecto.
 
 ---
 
@@ -237,12 +261,12 @@ python scripts/auditar_texto.py --texto nota.pdf --idioma en --salida informe.md
 ```
   Regla                                         texto   OCDE
 ----------------------------------------------------------------------
-  Párrafo de más de 3 oraciones                   78%    13%  <<
-  Párrafo de más de 100 palabras                  56%     6%  <<
-  Apertura de más de 40 palabras                   0%     8%
-  Párrafo sin ninguna cifra                       44%    33%
-  Párrafo sin referente de comparación            56%    58%
-  Apertura que retrasa la afirmación               0%     1%
+  Párrafo de más de 3 oraciones                   78%    19%  <<
+  Párrafo de más de 100 palabras                  56%    10%  <<
+  Apertura de más de 40 palabras                   0%    11%
+  Párrafo sin ninguna cifra                       44%    27%
+  Párrafo sin referente de comparación            56%    44%
+  Apertura que retrasa la afirmación               0%     2%
 ======================================================================
   Señalados por estructura     8 de 9
   Párrafos 7, 12, 13, 17, 6, 16, 20, 9
@@ -251,7 +275,7 @@ python scripts/auditar_texto.py --texto nota.pdf --idioma en --salida informe.md
 
 **La columna de la derecha no es un objetivo de cero.** Es la frecuencia con que
 la propia OCDE se aparta de cada regla, medida con estas mismas reglas sobre las
-69 notas. El 13% de los párrafos de la OCDE pasa de tres oraciones, y eso está
+69 notas. El 19% de los párrafos de la OCDE pasa de tres oraciones, y eso está
 bien.
 
 Lo que importa es la distancia. Las dos flechas señalan que ese texto tiene seis
@@ -366,7 +390,7 @@ notas de países europeos o asiáticos, ni contra otros géneros de la OCDE, ni
 contra documentos escritos originalmente en español.
 
 **La detección de referente es imprecisa.** Funciona con una lista de
-expresiones, y por eso el 58% del propio corpus aparece marcado como sin
+expresiones, y por eso el 44% del propio corpus aparece marcado como sin
 referente. Esa tasa mide tanto el texto como los límites de la lista. Sirve como
 señal, no como veredicto.
 
@@ -422,6 +446,7 @@ ocde-style/
 │   ├── validacion-cruzada.md       Comparación entre los dos países
 │   └── corpus_ocde.tsv             Los 93 enlaces del corpus
 └── scripts/
+    ├── prosa.py                    Criterio único de qué cuenta como prosa
     ├── auditar_texto.py            Mide un texto y calcula líneas base
     ├── analizar_estilo.py          Recalibra el perfil desde un corpus
     └── descargar_corpus.py         Descarga un corpus desde una lista

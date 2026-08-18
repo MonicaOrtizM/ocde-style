@@ -19,9 +19,27 @@ import re
 import sys
 import unicodedata
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from prosa import es_prosa                                   # noqa: E402
+
 PERFIL = {
     "en": {"oraciones_max": 3, "palabras_max": 100, "primera_max": 35},
     "es": {"oraciones_max": 3, "palabras_max": 100, "primera_max": 40},
+}
+
+# Los umbrales se pueden subir, pero no sin límite. Pasado el techo la regla 1
+# deja de significar algo, porque un párrafo de seis oraciones ya no es una
+# unidad que se entienda por separado, que es de lo que trata toda la skill.
+# Los techos salen de la medición. El p90 del corpus es de 3 oraciones y 98
+# palabras, y solo el 9% de los párrafos pasa de cinco oraciones.
+TECHOS = {
+    "oraciones_max": (5, "Con más de cinco oraciones el párrafo deja de ser una "
+                         "unidad autónoma y la regla 1 pierde sentido. En el "
+                         "corpus solo el 9% de los párrafos llega a ese tamaño."),
+    "palabras_max": (150, "El p90 del corpus es de 98 palabras. Por encima de "
+                          "150 ya no se está midiendo este estilo."),
+    "primera_max": (60, "El p90 de la apertura es de 35 palabras. Una apertura "
+                        "de más de 60 no afirma, enumera."),
 }
 
 RE_PALABRA = re.compile(r"[A-Za-zÁÉÍÓÚÜÑáéíóúüñ][\wÁÉÍÓÚÜÑáéíóúüñ'\-]*", re.UNICODE)
@@ -80,21 +98,6 @@ def parrafos_docx(ruta):
     return salida
 
 
-# Texto legal y de créditos que se repite en las publicaciones y no es prosa
-# del documento. Sin este filtro un PDF institucional parece lleno de párrafos
-# sin dato que en realidad son el aviso de derechos.
-BOILERPLATE = [
-    "you must not use this work", "third-party material", "any dispute",
-    "attribution 4.0", "creative commons", "cc by", "© oecd", "(c) oecd",
-    "please cite this publication", "statlink", "rights and permissions",
-    "the statistical data for israel", "note by türkiye", "note by turkey",
-    "this document, as well as any data and map", "you must",
-    "the opinions expressed and arguments employed", "corrigenda", "disclaimer",
-    "translations", "adaptations", "questions can be", "for more information",
-    "todos los derechos reservados", "queda prohibida", "cite esta publicación",
-]
-
-
 def parrafos_pdf(ruta):
     """Párrafos según los bloques de maquetación, no según líneas en blanco.
 
@@ -114,14 +117,6 @@ def parrafos_pdf(ruta):
                 t = re.sub(r"\s{2,}", " ", t)
                 if not t:
                     continue
-                bajo = t.lower()
-                if any(x in bajo for x in BOILERPLATE):
-                    continue
-                if re.match(r"^\s*(Source|Note|Fuente|Nota|Figure|Table|Chart|"
-                            r"Box|Gráfico|Tabla|Cuadro)\b", t, re.I):
-                    continue
-                if sum(c.isdigit() for c in t) / max(1, len(t)) > 0.16:
-                    continue                              # fila de tabla
                 salida.append(t)
     return salida
 
@@ -307,21 +302,24 @@ REGLAS = [
 ]
 
 
-def auditar(parrafos, idioma):
+def auditar(parrafos, idioma, u=None):
     """Marca cada párrafo regla por regla. No emite un veredicto binario.
 
     Un párrafo puede pasar de tres oraciones y estar bien escrito. Lo que
     importa no es si un párrafo incumple una regla, sino con qué frecuencia lo
     hace el texto comparado con el corpus de referencia.
     """
-    u = PERFIL[idioma]
+    u = u or PERFIL[idioma]
     debiles = [re.compile(p, re.I) for p in DEBILES[idioma]]
     refs = REFERENTE[idioma]
     filas, descartados = [], 0
     for i, p in enumerate(parrafos, start=1):
+        if not es_prosa(p):        # títulos, rótulos, tablas, pies, texto legal
+            descartados += 1
+            continue
         ors = oraciones_de(p)
         palabras = len(RE_PALABRA.findall(p))
-        if not ors or palabras < 10:         # títulos, rótulos, firmas, pies
+        if not ors:
             descartados += 1
             continue
         primera = len(RE_PALABRA.findall(ors[0]))
@@ -341,6 +339,28 @@ def auditar(parrafos, idioma):
                       "cifras": cifras_de(p),
                       "texto": p[:150]})
     return filas, descartados
+
+
+def aplicar_umbrales(u, args):
+    """Deja subir los umbrales, pero no hasta romper la regla 1.
+
+    Un techo no es paternalismo. Si se admite un párrafo de ocho oraciones, la
+    skill sigue midiendo algo, pero ya no mide el estilo que dice medir.
+    """
+    avisos = []
+    for arg, clave in (("max_oraciones", "oraciones_max"),
+                       ("max_palabras", "palabras_max"),
+                       ("max_apertura", "primera_max")):
+        v = getattr(args, arg)
+        if v is None:
+            continue
+        techo, razon = TECHOS[clave]
+        if v > techo:
+            sys.exit(f"--{arg.replace('_', '-')} no puede pasar de {techo}. {razon}")
+        if v != u[clave]:
+            avisos.append(f"{clave} de {u[clave]} a {v}")
+            u[clave] = v
+    return avisos
 
 
 def tasas(filas):
@@ -416,6 +436,12 @@ def main():
                     help="Recalcula la línea base sobre un corpus y la guarda")
     ap.add_argument("--idioma", choices=["es", "en", "auto"], default="auto")
     ap.add_argument("--salida")
+    ap.add_argument("--max-oraciones", type=int,
+                    help=f"Oraciones por párrafo. Techo {TECHOS['oraciones_max'][0]}")
+    ap.add_argument("--max-palabras", type=int,
+                    help=f"Palabras por párrafo. Techo {TECHOS['palabras_max'][0]}")
+    ap.add_argument("--max-apertura", type=int,
+                    help=f"Palabras de la apertura. Techo {TECHOS['primera_max'][0]}")
     ap.add_argument("--umbral-redundancia", type=float, default=0.75,
                     help="Solapamiento mínimo para señalar un par. Por defecto 0.75")
     args = ap.parse_args()
@@ -449,13 +475,15 @@ def main():
     else:
         aviso = f"idioma {idioma} (detectado, {n_es} marcas es contra {n_en} en)"
 
-    filas, descartados = auditar(parrafos, idioma)
+    umbrales = dict(PERFIL[idioma])
+    avisos = aplicar_umbrales(umbrales, args)
+    filas, descartados = auditar(parrafos, idioma, umbrales)
     if not filas:
         sys.exit("No se encontró prosa que auditar.")
 
     mias = tasas(filas)
     base = cargar_base(idioma)
-    u = PERFIL[idioma]
+    u = umbrales
 
     # Un párrafo se señala cuando falla en lo estructural, que es lo que la
     # skill sabe corregir. Las demás marcas informan, no condenan.
@@ -532,6 +560,8 @@ def main():
 
     print("=" * 70)
     print(f"  Perfil aplicado      {aviso}")
+    if avisos:
+        print(f"  Umbrales ajustados   {'; '.join(avisos)}")
     print(f"  Párrafos de prosa    {len(filas):>4}")
     print(f"  No auditados         {descartados:>4}   (títulos, rótulos, listas)")
     print("=" * 70)

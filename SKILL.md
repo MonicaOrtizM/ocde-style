@@ -7,18 +7,18 @@ description: Convierte insumos de cualquier tipo (notas, datos, transcripciones,
 
 Esta skill no imita el tema ni el género de la OCDE. Imita la arquitectura del
 párrafo, que es lo que hace que un documento se siga leyendo. El perfil está
-medido sobre 69 notas de país, 1.173 párrafos y 61.538 palabras, con dos filtros
+medido sobre 69 notas de país, 1.178 párrafos y 61.640 palabras, con dos filtros
 de país distintos. La construcción completa, los casos de uso y las limitaciones
 están en `README.md`, que debe leerse antes de la primera aplicación.
 
 ## Las tres reglas
 
 **1. El párrafo es una unidad autónoma de una a tres oraciones.** Mediana medida
-de 2 oraciones y 44 palabras. El 36% de los párrafos del corpus tiene una sola
+de 2 oraciones y 43 palabras. El 36% de los párrafos del corpus tiene una sola
 oración y solo el 9% pasa de cinco. Si un párrafo no se entiende por separado
 está mal cortado, y si pasa de cuatro oraciones casi siempre contiene dos ideas.
 
-**2. La afirmación va primero y contiene su dato.** El 55% de las primeras
+**2. La afirmación va primero y contiene su dato.** El 54% de las primeras
 oraciones del corpus ya contiene una cifra. No se anuncia lo que se va a
 demostrar, se afirma con la cifra incluida. La segunda oración amplía, matiza o
 compara, nunca repite.
@@ -39,9 +39,9 @@ No construir reglas sobre esto, porque los datos dicen que no existe.
 ## El perfil no depende del país
 
 El corpus se armó con dos filtros de país, Colombia y México, medidos por
-separado antes de unirlos. Las cuatro reglas de forma no se movieron más de dos
-puntos entre uno y otro, así que la arquitectura es del emisor y no del país. La
-única diferencia apreciable fue de contenido, ocho puntos en párrafos sin cifra.
+separado antes de unirlos. Cinco de las seis reglas no se movieron más de un
+punto entre uno y otro, así que la arquitectura es del emisor y no del país. La
+única diferencia apreciable fue de contenido, diez puntos en párrafos sin cifra.
 
 Consecuencia práctica. El corpus se puede nutrir con notas de cualquier país sin
 recalibrar. Ampliar el corpus añade robustez estadística, no cambia las reglas.
@@ -57,6 +57,19 @@ El detalle está en `referencias/validacion-cruzada.md`.
 
 Los del español son una conversión razonada sobre una medición hecha en inglés,
 no una medición propia. Decirlo cuando se reporte un resultado en español.
+
+**Se pueden subir, pero tienen techo.** Con `--max-oraciones`, `--max-palabras` y
+`--max-apertura` el usuario ajusta cada umbral. Por encima del techo el auditor
+se niega y explica por qué.
+
+| Umbral | Por defecto | Techo | Por qué ese techo |
+|---|---|---|---|
+| Oraciones por párrafo | 3 | **5** | Con más de cinco el párrafo deja de entenderse por separado y la regla 1 pierde sentido. En el corpus solo el 9% llega a ese tamaño |
+| Palabras por párrafo | 100 | **150** | El p90 del corpus es 98. Por encima de 150 ya no se mide este estilo |
+| Palabras de la apertura | 35 en, 40 es | **60** | El p90 de la apertura es 35. Una de más de 60 no afirma, enumera |
+
+Cuando se ajusta un umbral el informe lo dice en la cabecera, para que nadie lea
+un resultado creyendo que salió del perfil por defecto.
 
 ## Estilo de casa
 
@@ -97,7 +110,7 @@ python scripts/auditar_texto.py --texto borrador.docx
 Acepta `.docx`, `.pdf`, `.md`, `.txt`. Reconoce el idioma por sí mismo.
 
 **Cómo se lee.** El informe da la frecuencia de cada regla en el texto contra la
-frecuencia en el corpus de la OCDE. La referencia no es cero. El 13% de los
+frecuencia en el corpus de la OCDE. La referencia no es cero. El 19% de los
 párrafos de la OCDE pasa de tres oraciones. Lo que importa es la distancia, y
 solo se señala lo que está veinte puntos o más por encima.
 
@@ -143,6 +156,7 @@ cumplimiento. Por eso cada regla se reporta por separado.
 | `scripts/auditar_texto.py` | Audita un texto, y con `--calcular-base` mide un corpus |
 | `scripts/analizar_estilo.py` | Recalibra el perfil descriptivo desde un corpus de PDF |
 | `scripts/descargar_corpus.py` | Descarga un corpus desde una lista de enlaces |
+| `scripts/prosa.py` | Criterio único de qué bloque cuenta como prosa. Lo usan los otros dos |
 
 ## Límites que hay que declarar al entregar
 
@@ -151,7 +165,7 @@ cumplimiento. Por eso cada regla se reporta por separado.
 - Los dos filtros de país son de América Latina. No se probó contra notas de
   países europeos o asiáticos.
 - La detección de referente es imprecisa, usa una lista de expresiones y marca
-  como sin referente al 58% del propio corpus. Es señal, no veredicto.
+  como sin referente al 44% del propio corpus. Es señal, no veredicto.
 - La detección de repetición compara vocabulario, no significado. Dos párrafos
   que hablan del mismo tema con palabras distintas no se detectan.
 - Se descarta el 82% de los bloques del PDF por ser tablas y leyendas.

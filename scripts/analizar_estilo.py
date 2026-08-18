@@ -26,7 +26,11 @@ import json
 import os
 import re
 import statistics as st
+import sys
 from collections import Counter
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from prosa import es_prosa                                   # noqa: E402
 
 ABREV = (r"(?<!\b[A-Z])(?<!\be\.g)(?<!\bi\.e)(?<!\betc)(?<!\bvs)(?<!\bFig)"
          r"(?<!\bNo)(?<!\bDr)(?<!\bp)(?<!\bpp)(?<!\bapprox)(?<!\bUS)")
@@ -81,41 +85,6 @@ def bloques_de(ruta):
     return salida, n
 
 
-# Texto legal y de créditos que la OCDE repite en cada nota. Si no se filtra,
-# infla los conteos y hace creer que el corpus abre párrafos con "you must".
-BOILERPLATE = [
-    "you must not use this work", "third-party material", "any dispute",
-    "attribution 4.0", "creative commons", "cc by", "© oecd", "(c) oecd",
-    "please cite this publication", "statlink", "rights and permissions",
-    "the statistical data for israel", "note by türkiye", "note by turkey",
-    "the information in this document with reference to kosovo",
-    "this document, as well as any data and map",
-    "the opinions expressed and arguments employed",
-    "oecd freely authorises", "corrigenda", "disclaimer",
-    "the use of this work, whether digital or print",
-    "translations", "adaptations", "you must",
-    # Navegación y créditos que no son prosa del documento.
-    "questions can be", "explore, compare", "read the full", "the full report",
-    "for more information", "this note is part", "data on this",
-]
-
-
-def es_boilerplate(p):
-    bajo = p.lower()
-    return any(b in bajo for b in BOILERPLATE)
-
-
-def es_prosa(p):
-    palabras = RE_PALABRA.findall(p)
-    if len(palabras) < 12 or len(p) < 60:
-        return False
-    if sum(c.isdigit() for c in p) / max(1, len(p)) > 0.16:   # fila de tabla
-        return False
-    if re.match(r"^\s*(Source|Note|StatLink|Figure|Table|Chart|Box)\b", p, re.I):
-        return False
-    if es_boilerplate(p):
-        return False
-    return bool(re.search(r"[.!?]\s*$", p))
 
 
 def es_encabezado(p):
